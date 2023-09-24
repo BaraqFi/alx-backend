@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Contains a get_user function.
+Contains get_locale function to use
+a user’s preferred local if it is supported.
 """
 from flask import Flask, render_template, request, g
 from flask_babel import Babel
@@ -30,25 +31,27 @@ users = {
 
 
 @app.route("/")
-def index_5() -> str:
+def index_6() -> str:
     """The index function displays the home page of the web application.
 
     Returns:
         str: contents of the home page.
     """
-    return render_template("5-index.html")
+    return render_template("6-index.html")
 
 
 @babel.localeselector
 def get_locale() -> str:
-    """Determines the best match for the client's preferred language.
+    """"Returns the preferred locale for the user.
 
-    This function uses Flask's request object to access the client's preferred
-    languages and the app's supported languages (defined in the Config class)
-    to determine the best match. The best match is then returned as the locale.
+    The order of priority is:
+    1. Locale from URL parameters
+    2. Locale from user settings
+    3. Locale from request header
+    4. Default locale
 
     Returns:
-        str: The locale code for the best match (e.g. "en", "fr").
+        str: The preferred locale.
     """
     # Get the locale parameter from the incoming request
     locale = request.args.get('locale')
@@ -58,10 +61,13 @@ def get_locale() -> str:
         # If the locale parameter is present and is a supported locale,
         # return it
         return locale
-    else:
-        # Use request.accept_languages to get the best match
-        best_match = request.accept_languages.best_match(supported_languages)
-        return best_match
+    # Locale from user settings
+    if g.user and g.user['locale'] in app.config["LANGUAGES"]:
+        return g.user['locale']
+    header_locale = request.headers.get('locale', '')
+    if header_locale in app.config["LANGUAGES"]:
+        return header_locale
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
 
 
 def get_user() -> Union[Dict, None]:

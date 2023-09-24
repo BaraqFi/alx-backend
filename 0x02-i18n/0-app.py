@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-A flask module
+Contains the main file of the Flask application.
 """
 from flask import Flask, render_template
-
-
-
 app = Flask(__name__)
-app.url_map.strict_slashes = False
 
 
-@app.route('/')
-def main() -> str:
-    """ The home page
+@app.route('/', strict_slashes=False)
+def index() -> str:
     """
-    return (render_template('0-index.html'))
+    This is the main page of the flask application.
+
+    Returns:
+        str: The rendered template.
+    """
+    return render_template('0-index.html')
 
 
 if __name__ == '__main__':

@@ -1,28 +1,47 @@
 #!/usr/bin/env python3
 """
-Flask module
+Contains a get_locale function with the babel.localeselector decorator.
 """
-from flask import request, Flask, render_template
+from flask import Flask, render_template, request
 from flask_babel import Babel
-from config import Config
 
 app = Flask(__name__)
-app.config.from_object(Config)
-app.url_map.strict_slashes = False
 babel = Babel(app)
+app.url_map.strict_slashes = False
+
+
+class Config(object):
+    """
+    This class is used to configure the application.
+    """
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+
+
+app.config.from_object(Config)
 
 
 @babel.localeselector
-def get_locale():
-    """ setting the languages to a particular settings
+def get_locale() -> str:
+    """
+    This function is used to select the language.
+
+    Returns:
+        str: The language.
     """
     return request.accept_languages.best_match(app.config['LANGUAGES'])
 
-@app.route('/')
-def main() -> str:
-    """ The home page
+
+@app.route('/', methods=['GET'], strict_slashes=False)
+def index() -> str:
     """
-    return (render_template('2-index.html'))
+    This is the main page of the flask application.
+
+    Returns:
+        str: The rendered template.
+    """
+    return render_template('2-index.html')
 
 
 if __name__ == '__main__':
